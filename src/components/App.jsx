@@ -2,15 +2,17 @@ import ContactForm from "./ContactForm/ContactForm";
 import Filter from "./Filter/Filter";
 import ContactList from "./ContactList/ContactList";
 import { useForm } from "react-hook-form";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { nanoid } from "nanoid";
 
-const localContacts = localStorage.getItem('contacts')
-let parseContacts = [];
+// const localContacts = localStorage.getItem('contacts')
+// let parseContacts = [];
 
-if (localContacts) {
-  parseContacts = JSON.parse(localContacts);
-}
+// if (localContacts) {
+//   parseContacts = JSON.parse(localContacts);
+// }
+
+// const parseContacts = () => JSON.parse(window.localStorage.getItem('contacts'))
 
 const App = () => {
   const {
@@ -19,8 +21,8 @@ const App = () => {
     handleSubmit
   } = useForm();
   const [filter, setFilter] = useState("");
-  const [contacts, setContacts] = useState(parseContacts);
-
+  const [contacts, setContacts] = useState(() => JSON.parse(window.localStorage.getItem('contacts')) || []);
+  
   const onSubmit = (data) => {
     data.id = nanoid();
     const listForRequier = contacts.filter(contact => contact.name === data.name);
@@ -31,14 +33,17 @@ const App = () => {
     }
     document.getElementById('myform').reset()
   };
-  
+
   const filteredContacts = contacts.filter(contact => contact.name.toLowerCase().includes(filter.toLowerCase()))
   
   const deleteContact = (evt) => {
     setContacts(current => current.filter(contact => contact.id !== evt.target.id))
   }
+
+  useEffect(() => {
+    localStorage.setItem('contacts', JSON.stringify(contacts));
+  },[contacts])
                   
-  localStorage.setItem('contacts', JSON.stringify(contacts));
   
   return (
     <div
